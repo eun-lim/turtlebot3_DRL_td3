@@ -4,7 +4,7 @@
 
 운영 체제: Ubuntu 20.04
 
-ROS 버전: ROS 2 Foxy Fitzroy
+ROS 버전: ROS 2 Foxy 
 
 로봇: TurtleBot3
 
@@ -82,7 +82,9 @@ ros2 run turtlebot3_teleop teleop_keyboard
 
 myenv_td3 폴더가 설치된 위치를 확인하고 경로를 설정한 후 가상환경을 활성화하여 사용하세요
 ```jsx
-source /your/path/myenv_td3/bin/activate
+cd
+git clone -b myenv_td3 https://github.com/eun-lim/turtlebot3_DRL_td3.git
+source ~/myenv_td3/bin/activate
 ```
 
 
@@ -147,25 +149,26 @@ colcon build --packages-select td3
 
 ```bash
 ros2 run td3 my_test.py
+
 ```
 
-![image](<https://github.com/user-attachments/assets/7a470741-b19b-45e5-bbad-30b35e142e70>)
+https://github.com/user-attachments/assets/7a470741-b19b-45e5-bbad-30b35e142e70
 
 1.4 test 시 사용되는 gui 파일
 
 로봇의 위치 및 목적지의 위치를 gui를 통해 확인할 수 있습니다. (train 시에는 사용할 수 없습니다)
 
- 파란점 : 로봇의 위치
+파란점 : 로봇의 위치
 
- 빨간점 : 목적지 위치
+빨간점 : 목적지 위치
 
- 회색 벽 : 장애물 위치
+회색 벽 : 장애물 위치
 
 ```bash
 ros2 run td3 gui.py
 ```
-
-![image](<https://github.com/user-attachments/assets/26db2e28-561c-4f31-8d71-aaaeb3ab1a1d>)
+   
+   ![image](<https://github.com/user-attachments/assets/26db2e28-561c-4f31-8d71-aaaeb3ab1a1d>)
 
 
 2. laser_geometry
