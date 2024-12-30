@@ -29,6 +29,8 @@ from sensor_msgs.msg import LaserScan, PointCloud2
 from laser_geometry import LaserProjection
 from sensor_msgs_py.point_cloud2 import read_points
 from geometry_msgs.msg import Point  # 추가
+from std_msgs.msg import String
+
 
 GOAL_REACHED_DIST = 0.3
 COLLISION_DIST = 0.35
@@ -110,6 +112,7 @@ class GazeboEnv(Node):
         self.set_self_state.pose.orientation.y = 0.0
         self.set_self_state.pose.orientation.z = 0.0
         self.set_self_state.pose.orientation.w = 1.0
+        self.message_data = 'message'
 
         # Set up the ROS publishers and subscribers
         self.vel_pub = self.create_publisher(Twist, "/cmd_vel", 1)
@@ -125,6 +128,16 @@ class GazeboEnv(Node):
         self.publisher3 = self.create_publisher(MarkerArray, "angular_velocity", 1)
 
         self.goal_pub = self.create_publisher(Point, "/goal_position", 10)  # 목표 위치 퍼블리셔 추가
+
+        self.publisher_ = self.create_publisher(String, '/result_test', 10)
+
+
+    def publish_message(self, message_data):
+        msg = String()
+        msg.data = message_data
+        self.publisher_.publish(msg)
+        self.get_logger().info('Published: "%s"' % msg.data)     
+
 
     # Perform an action and read a new state
     def step(self, action):
@@ -206,6 +219,7 @@ class GazeboEnv(Node):
         # Detect if the goal has been reached and give a large positive reward
         if distance < GOAL_REACHED_DIST:
             env.get_logger().info("GOAL is reached!")
+            self.publish_message('GOAL is reached!')
             target = True
             done = True
 
@@ -219,15 +233,20 @@ class GazeboEnv(Node):
         # Resets the state of the environment and returns an initial observation.
         while not self.reset_proxy.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('reset : service not available, waiting again...')
+            self.publish_message('reset : service not available, waiting again...')
 
         try:
             self.reset_proxy.call_async(Empty.Request())
+            self.publish_message('reset')
+
         except rclpy.ServiceException as e:
             print("/gazebo/reset_simulation service call failed")
 
         angle = np.random.uniform(-np.pi, np.pi)
         quaternion = Quaternion.from_euler(0.0, 0.0, angle)
         object_state = self.set_self_state
+
+
 
         x = 0
         y = 0
@@ -314,7 +333,7 @@ class GazeboEnv(Node):
         self.goal_pub.publish(goal_msg)
         self.get_logger().info(f"Published new goal position: ({self.goal_x}, {self.goal_y})")
 
-        
+ 
 
     def change_goal(self, x=None, y=None):
         # X와 Y 좌표의 맵 경계를 설정
@@ -443,6 +462,8 @@ class GazeboEnv(Node):
         min_laser = min(laser_data)
         if min_laser < COLLISION_DIST:
             env.get_logger().info("Collision is detected!")
+            env.publish_message('Collision is detected!')
+
             return True, True, min_laser
         return False, False, min_laser
 
@@ -553,13 +574,13 @@ if __name__ == '__main__':
     action_dim = 2
     finish_episode_reward = 0
     # Create the network
-    network = td3(state_dim, action_dim)
+    network = td3(state_dim, action_dim) 
     try:
-        network.load(file_name, "/home/robo/foxy_ws/src/td3/runs3/train/pytorch_models")
+        network.load(file_name, "/home/oem/my_DRL_td3_ws/src/turtlebot3_DRL_td3/td3/runs3/train/pytorch_models")
     except:
         raise ValueError("Could not load the stored model parameters")
     
-    writer = SummaryWriter(log_dir="/home/robo/foxy_ws/src/td3/runs3/test/tensorboard")
+    writer = SummaryWriter(log_dir="/home/oem/my_DRL_td3_ws/src/turtlebot3_DRL_td3/td3/runs3/test/tensorboard")
 
     done = True
     episode_timesteps = 0

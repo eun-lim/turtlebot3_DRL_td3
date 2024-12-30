@@ -133,7 +133,7 @@ class td3(object):
         self.critic_optimizer = torch.optim.Adam(self.critic.parameters())
 
         self.max_action = max_action
-        self.writer = SummaryWriter(log_dir="/home/robo/foxy_ws/src/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs3/train/tensorboard")
+        self.writer = SummaryWriter(log_dir="/home/oem/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs4/train/tensorboard")
         # os.path.dirname(os.path.realpath(__file__)) + "/runs"
         self.iter_count = 0
 
@@ -633,6 +633,23 @@ class GazeboEnv(Node):
             r3 = lambda x: 1 - x if x < 1 else 0.0
             return action[0] / 2 - abs(action[1]) / 2 - r3(min_laser) / 2
 
+    # def get_reward(target, collision, action, min_laser):
+    #     if target:
+    #         env.get_logger().info("reward 10")
+    #         return 10.0  # 목표 도달 보상
+    #     elif collision:
+    #         env.get_logger().info("reward -10")
+    #         return -10.0  # 충돌 시 패널티
+    #     else:
+    #         # 거리 유지 보상 (r3), 거리 정보의 중요성을 높이기 위해 가중치 추가
+    #         safe_distance_reward = (1 - min_laser) if min_laser < 1 else 0.0
+            
+    #         # 속도와 회전의 균형 조정
+    #         forward_reward = action[0] * 0.3  # 직선 이동에 대한 보상
+    #         rotation_penalty = -abs(action[1]) * 0.1  # 과도한 회전 패널티
+            
+    #         # 최종 보상 계산
+    #         return forward_reward + rotation_penalty + safe_distance_reward * 0.5
 
 class Odom_subscriber(Node):
 
@@ -718,7 +735,7 @@ if __name__ == '__main__':
     rclpy.init(args=None)
 
     seed = 0  # Random seed number
-    eval_freq = 5e3  # After how many steps to perform the evaluation
+    eval_freq = 5e4  # After how many steps to perform the evaluation
     max_ep = 30000  # maximum number of steps per episode
     eval_ep = 10  # number of episodes for evaluation
     max_timesteps = 5e7  # Maximum number of steps to perform
@@ -762,7 +779,7 @@ if __name__ == '__main__':
     if load_model:
         try:
             print("Will load existing model.")
-            network.load(file_name, "/home/robo/foxy_ws/src/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs3/train/pytorch_models")
+            network.load(file_name, "/home/oem/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs4/train/pytorch_models")
         except:
             print("Could not load the stored model parameters, initializing training with random parameters")
 
@@ -816,8 +833,8 @@ if __name__ == '__main__':
                             evaluate(network=network, epoch=epoch, eval_episodes=eval_ep)
                         )
 
-                        network.save(file_name, directory="/home/robo/foxy_ws/src/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs3/train/pytorch_models")
-                        np.save("/home/robo/foxy_ws/src/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs3/train/results/%s" % (file_name), evaluations)
+                        network.save(file_name, directory="/home/oem//DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs4/train/pytorch_models")
+                        np.save("/home/oem/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs4/train/results/%s" % (file_name), evaluations)
                         epoch += 1
 
                     state = env.reset()
@@ -868,9 +885,7 @@ if __name__ == '__main__':
                 episode_timesteps += 1
                 timestep += 1
                 timesteps_since_eval += 1
-            # env.get_logger().info(f"ㅇㅇㅇㅇ끝났슴다... 시간이 끝났어요.. ")
 
-        # env.get_logger().info(f"끝났슴다... 시간이 끝났어요.. ")
     except KeyboardInterrupt:
         pass
 

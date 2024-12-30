@@ -4,6 +4,7 @@ from rclpy.node import Node
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point
 import tkinter as tk
+from std_msgs.msg import String
 
 class RobotPoseSubscriber(Node):
     def __init__(self):
@@ -13,18 +14,28 @@ class RobotPoseSubscriber(Node):
             'odom',  
             self.pose_callback,
             10)
+
         self.goal_subscription = self.create_subscription(
             Point,
             'goal_position',  # 목표 지점을 나타내는 토픽
             self.goal_callback,
             10)
-
+        
+        self.result_subscription = self.create_subscription(
+            String ,
+            '/result_test',  # 결과 데이터를 나타내는 토픽
+            self.result_callback,
+            10)
 
         self.x = 0.0
         self.y = 0.0
         self.goal_x = None
         self.goal_y = None
-        self.velodyne_data = []
+        self.result_x = None
+        self.result_y = None
+        self.msgs = None
+        self.msg_lst = []
+
 
     def pose_callback(self, msg):
         self.x = msg.pose.pose.position.x
@@ -34,6 +45,13 @@ class RobotPoseSubscriber(Node):
         self.goal_x = msg.x
         self.goal_y = msg.y
 
+    def result_callback(self, msg):
+        self.msgs = msg.data
+        self.msg_lst.append(self.msgs)
+        if len(self.msg_lst) > 5:
+            self.msg_lst.pop(0)
+
+
 class RobotVisualizerApp:
     def __init__(self, root, node):
         self.root = root
@@ -42,7 +60,13 @@ class RobotVisualizerApp:
         self.draw_grid()  # Draw grid lines on the canvas
         self.canvas.pack()
         self.robot = self.canvas.create_oval(245, 245, 255, 255, fill='blue')
+
+        # 텍스트 박스 추가
+        self.text_box = tk.Text(root, height=11, bg="white", state=tk.DISABLED)
+        self.text_box.pack(fill=tk.X)
+
         self.update_position()
+        self.update_text()
 
     def draw_grid(self):
         # Draw restricted areas in light pink
@@ -74,21 +98,11 @@ class RobotVisualizerApp:
         self.canvas.coords(self.robot, canvas_x - 5, canvas_y - 5, canvas_x + 5, canvas_y + 5)
         
         # 100ms마다 업데이트 반복
-        if self.node.goal_x is not None and self.node.goal_y is not None:
-            goal_canvas_x = 500 + self.node.goal_x * 100
-            goal_canvas_y = 600 - self.node.goal_y * 100
-            self.canvas.create_oval(goal_canvas_x - 5, goal_canvas_y - 5, goal_canvas_x + 5, goal_canvas_y + 5, fill='red', outline='red', tags='goal')
         self.canvas.delete('goal')
         if self.node.goal_x is not None and self.node.goal_y is not None:
             goal_canvas_x = 500 + self.node.goal_x * 100
             goal_canvas_y = 600 - self.node.goal_y * 100
             self.canvas.create_oval(goal_canvas_x - 5, goal_canvas_y - 5, goal_canvas_x + 5, goal_canvas_y + 5, fill='red', outline='red', tags='goal')
-        if self.node.velodyne_data:
-            # Velodyne 데이터를 시각화 (예시: 포인트 클라우드를 캔버스에 표시)
-            for point in self.node.velodyne_data:
-                canvas_x = 500 + point.x * 100
-                canvas_y = 600 - point.y * 100
-                self.canvas.create_oval(canvas_x - 2, canvas_y - 2, canvas_x + 2, canvas_y + 2, fill='green', tags='velodyne')
         if self.node.goal_x is not None and self.node.goal_y is not None:
             goal_ok = True
             if 3 < self.node.goal_y < 4:
@@ -102,6 +116,40 @@ class RobotVisualizerApp:
             color = 'red' if goal_ok else 'orange'
             self.canvas.create_oval(goal_canvas_x - 5, goal_canvas_y - 5, goal_canvas_x + 5, goal_canvas_y + 5, fill=color, outline=color, tags='goal')
         self.root.after(100, self.update_position)
+
+    def update_text(self):
+        # 텍스트 박스에 로봇과 목표 지점 위치를 갱신하여 표시
+        self.text_box.config(state=tk.NORMAL)
+        self.text_box.delete(1.0, tk.END)  # 이전 텍스트 삭제
+
+        # 현재 로봇 위치 출력
+        self.text_box.insert(tk.END, f"Robot Position:\n")
+        self.text_box.insert(tk.END, f"  X: {self.node.x:.2f}\n")
+        self.text_box.insert(tk.END, f"  Y: {self.node.y:.2f}\n\n")
+
+        # 목표 위치 출력
+        if self.node.goal_x is not None and self.node.goal_y is not None:
+            self.text_box.insert(tk.END, f"Goal Position:\n")
+            self.text_box.insert(tk.END, f"  X: {self.node.goal_x:.2f}\n")
+            self.text_box.insert(tk.END, f"  Y: {self.node.goal_y:.2f}\n\n")
+        else:
+            self.text_box.insert(tk.END, "Goal Position: Not Set\n\n")
+
+        if self.node.msg_lst:
+            self.text_box.insert(tk.END, "Result Data (Last two messages):\n")
+
+            # 최신 메시지 출력
+            if len(self.node.msg_lst) >= 1:
+                self.text_box.insert(tk.END, f"  Latest Message: {self.node.msg_lst[-1]}\n")
+
+            # 그 이전 메시지 출력 (존재할 경우)
+            if len(self.node.msg_lst) >= 2:
+                self.text_box.insert(tk.END, f"  Previous Message: {self.node.msg_lst[-2]}\n")
+        else:
+            self.text_box.insert(tk.END, "Result message: Not Set\n")
+
+        self.text_box.config(state=tk.DISABLED)  # 읽기 전용으로 설정
+        self.root.after(500, self.update_text)
 
 def main(args=None):
     rclpy.init(args=args)
