@@ -4,19 +4,21 @@
 
 운영 체제: Ubuntu 20.04
 
-ROS 버전: ROS 2 Foxy Fitzroy
+ROS 버전: ROS 2 Foxy 
 
 로봇: TurtleBot3
 
 알고리즘: TD3 (Twin Delayed Deep Deterministic policy gradient)
 
 ---
+
 ## 환경 세팅
 
 아래의 노션 페이지를 참고하세요 
 https://cyber-splash-3b4.notion.site/147dd9f6a5288050b615d959c0a787db?pvs=4
 
---
+
+
 ### ROS2 설치 
 
 ros2 fozy 버전을 설치합니다. ROBOTIS turtlebot e-manule을 참고하면 쉽게 설치할 수 있습니다.
@@ -31,7 +33,7 @@ bash ./install_ros2_foxy.sh
  
 https://docs.ros.org/en/foxy/Installation.html
 
---
+
 ### turtlebot3 설치
 이 코드는 turtlebot3를 사용하고 있으므로 로봇 사용을 위한 패키지 설치가 필요합니다. 아래의 링크에서 foxy 버전에 해당하는 터틀봇 패키지를 설치하세요. 만약 다른 로봇을 사용하고 있다면 src안의 models와 world, launch의 해당하는 부분을 변경하면 됩니다. 
 
@@ -80,7 +82,9 @@ ros2 run turtlebot3_teleop teleop_keyboard
 
 myenv_td3 폴더가 설치된 위치를 확인하고 경로를 설정한 후 가상환경을 활성화하여 사용하세요
 ```jsx
-source /your/path/myenv_td3/bin/activate
+cd
+git clone -b myenv_td3 https://github.com/eun-lim/turtlebot3_DRL_td3.git
+source ~/myenv_td3/bin/activate
 ```
 
 
@@ -105,16 +109,14 @@ Repository를 다운로드 합니다.
 ```jsx
 mkdir -p ros2_ws/src
 cd ~/ros2_ws/src
-git clone ~~
-
+git clone -b ttb_td3_simulation https://github.com/eun-lim/turtlebot3_DRL_td3.git
 ```
 
 ```jsx
-cd ~/ros2_ws/src
-
-
+cd ~/ros2_ws
+colcon build --packages-select laser_geometry --allow-overriding laser_geometry
+colcon build --packages-select td3
 ```
-
 
 사용되는 패키지는 다음과 같습니다. 
 1. td3 
@@ -122,59 +124,55 @@ cd ~/ros2_ws/src
    1.1 시뮬레이션 환경 (gazebo) 및 rviz 실행하는 launch 파일
    
     ```jsx
-    ros2 launch td3 
+    ros2 launch td3 mytrain_sim.launch.py
     
     ```
+![image](https://github.com/user-attachments/assets/2466b480-707a-42aa-992c-536ce6a2216e)
 
     1.2 training 파일
    
     ```jsx
-    ros2 launch td3 mytrain_sim.launch.py
+    ros2 run td3 my_train.py
     
     ```
 
-![image](https://github.com/user-attachments/assets/2466b480-707a-42aa-992c-536ce6a2216e)
 
 
+1.3 test 파일
 
-    1.3 test 파일
+로봇이 목적지에 도달하거나, 벽에 충돌하거나, 일정 시간이 지나면 시스템은 자동으로 로봇의 목적지를 재설정하고 리셋합니다. 이 과정에서 로봇은 랜덤한 새로운 목적지로 이동을 시작합니다.
 
-    - 로봇이 목적지에 도달하거나, 벽에 충돌하거나, 일정 시간이 지나면 시스템은 자동으로 로봇의 목적지를 재설정하고 리셋합니다. 이 과정에서 로봇은 랜덤한 새로운 목적지로 이동을 시작합니다.
-    
-    - 목적지 변경 : 로봇이 목적지로 이동 중일 때 사용자가 GUI를 통해 새로운 목적지를 입력하면, 로봇은 즉시 설정된 새 목적지로 방향을 변경합니다.
+목적지 변경 : 로봇이 목적지로 이동 중일 때 사용자가 GUI를 통해 새로운 목적지를 입력하면, 로봇은 즉시 설정된 새 목적지로 방향을 변경합니다.
 
-    - 만약 장애물 위치로 목적지를 변경한다면 랜덤한 목적지가 설정됩니다. 
-    
-    - 로봇 초기화: 사용자가 GUI에서 Reset Robot 버튼을 누르면, 로봇은 초기 위치인 (0, 1)로 이동하고 랜덤한 목적지가 다시 설정됩니다.
+만약 장애물 위치로 목적지를 변경한다면 랜덤한 목적지가 설정됩니다.
+
+로봇 초기화: 사용자가 GUI에서 Reset Robot 버튼을 누르면, 로봇은 초기 위치인 (0, 1)로 이동하고 랜덤한 목적지가 다시 설정됩니다.
+
+```bash
+ros2 run td3 my_test.py
+
+```
+
+![image](https://github.com/user-attachments/assets/7aea747e-5b05-4fb3-84a1-af80712e6a64)
+
+
+1.4 test 시 사용되는 gui 파일
+
+로봇의 위치 및 목적지의 위치를 gui를 통해 확인할 수 있습니다. (train 시에는 사용할 수 없습니다)
+
+파란점 : 로봇의 위치
+
+빨간점 : 목적지 위치
+
+회색 벽 : 장애물 위치
+
+```bash
+ros2 run td3 gui.py
+```
    
-    ```jsx
-    ros2 run td3 my_test.py
-    
-    ```
-
-    ![image](https://github.com/user-attachments/assets/7a470741-b19b-45e5-bbad-30b35e142e70)
-
-    
-    1.4 test 시 사용되는 gui 파일
-
-     로봇의 위치 및 목적지의 위치를 gui를 통해 확인할 수 있습니다. (train 시에는 사용할 수 없습니다)
-
-     파란점 : 로봇의 위치 
-
-     빨간점 : 목적지 위치 
-
-     회색 벽 : 장애물 위치 
+![image](https://github.com/user-attachments/assets/b3b6f12c-3ca8-4ce2-8570-29590ac814e6)
 
 
-    ```jsx
-    ros2 run td3 gui.py
-    
-    ```
-
-    ![image](https://github.com/user-attachments/assets/26db2e28-561c-4f31-8d71-aaaeb3ab1a1d)
-
-
-  
 
 2. laser_geometry
    
@@ -198,7 +196,7 @@ cd ~/ros2_ws/src
 
    
 
---
+
 
 ### TensorBoard  
 
@@ -247,6 +245,8 @@ bazel build //tensorboard
 cd ~/tensorboard_ws/tensorboard
 ./bazel-bin/tensorboard/tensorboard --logdir=/home/robo/foxy_ws/src/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs/train/tensorboard/
 ```
+
+![image](https://github.com/user-attachments/assets/788632c1-1826-4479-8644-49fc97460fb8)
 
 
 
