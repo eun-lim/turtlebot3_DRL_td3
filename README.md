@@ -127,6 +127,7 @@ colcon build --packages-select td3
     ros2 launch td3 mytrain_sim.launch.py
     
     ```
+![image](https://github.com/user-attachments/assets/2466b480-707a-42aa-992c-536ce6a2216e)
 
     1.2 training 파일
    
@@ -135,7 +136,7 @@ colcon build --packages-select td3
     
     ```
 
-![image](https://github.com/user-attachments/assets/2466b480-707a-42aa-992c-536ce6a2216e)
+
 
 1.3 test 파일
 
@@ -152,7 +153,8 @@ ros2 run td3 my_test.py
 
 ```
 
-https://github.com/user-attachments/assets/7a470741-b19b-45e5-bbad-30b35e142e70
+![image](https://github.com/user-attachments/assets/7aea747e-5b05-4fb3-84a1-af80712e6a64)
+
 
 1.4 test 시 사용되는 gui 파일
 
@@ -168,7 +170,8 @@ https://github.com/user-attachments/assets/7a470741-b19b-45e5-bbad-30b35e142e70
 ros2 run td3 gui.py
 ```
    
-   ![image](<https://github.com/user-attachments/assets/26db2e28-561c-4f31-8d71-aaaeb3ab1a1d>)
+![image](https://github.com/user-attachments/assets/b3b6f12c-3ca8-4ce2-8570-29590ac814e6)
+
 
 
 2. laser_geometry
@@ -242,6 +245,8 @@ bazel build //tensorboard
 cd ~/tensorboard_ws/tensorboard
 ./bazel-bin/tensorboard/tensorboard --logdir=/home/robo/foxy_ws/src/DRL_Navigation_Robot_ROS2_Foxy/src/td3/runs/train/tensorboard/
 ```
+
+![image](https://github.com/user-attachments/assets/788632c1-1826-4479-8644-49fc97460fb8)
 
 
 
