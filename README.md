@@ -10,6 +10,8 @@ ROS 버전: ROS 2 Foxy
 
 알고리즘: TD3 (Twin Delayed Deep Deterministic policy gradient)
 
+Deep Reinforcement Learning algorithm (DRL) 
+Twin Delayed Deep Deterministic Policy Gradient (TD3)
 ---
 
 ## 환경 세팅
@@ -123,18 +125,18 @@ colcon build --packages-select td3
    
    1.1 시뮬레이션 환경 (gazebo) 및 rviz 실행하는 launch 파일
    
-    ```jsx
-    ros2 launch td3 mytrain_sim.launch.py
-    
-    ```
+     ```jsx
+     ros2 launch td3 mytrain_sim.launch.py
+     
+     ```
 ![image](https://github.com/user-attachments/assets/2466b480-707a-42aa-992c-536ce6a2216e)
 
     1.2 training 파일
    
-    ```jsx
-    ros2 run td3 my_train.py
-    
-    ```
+     ```jsx
+     ros2 run td3 my_train.py
+     
+     ```
 
 
 
@@ -148,10 +150,10 @@ colcon build --packages-select td3
 
 로봇 초기화: 사용자가 GUI에서 Reset Robot 버튼을 누르면, 로봇은 초기 위치인 (0, 1)로 이동하고 랜덤한 목적지가 다시 설정됩니다.
 
-```bash
-ros2 run td3 my_test.py
-
-```
+  ```bash
+  ros2 run td3 my_test.py
+  
+  ```
 
 ![image](https://github.com/user-attachments/assets/7aea747e-5b05-4fb3-84a1-af80712e6a64)
 
@@ -166,9 +168,9 @@ ros2 run td3 my_test.py
 
 회색 벽 : 장애물 위치
 
-```bash
-ros2 run td3 gui.py
-```
+ ```bash
+ ros2 run td3 gui.py
+ ```
    
 ![image](https://github.com/user-attachments/assets/b3b6f12c-3ca8-4ce2-8570-29590ac814e6)
 
