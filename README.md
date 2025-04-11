@@ -11,7 +11,9 @@ ROS 버전: ROS 2 Foxy
 알고리즘: TD3 (Twin Delayed Deep Deterministic policy gradient)
 
 Deep Reinforcement Learning algorithm (DRL) 
+
 Twin Delayed Deep Deterministic Policy Gradient (TD3)
+
 ---
 
 ## 환경 세팅
@@ -131,7 +133,8 @@ colcon build --packages-select td3
      ```
 ![image](https://github.com/user-attachments/assets/2466b480-707a-42aa-992c-536ce6a2216e)
 
-    1.2 training 파일
+   
+   1.2 training 파일
    
      ```jsx
      ros2 run td3 my_train.py
